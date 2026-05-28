@@ -14,5 +14,5 @@
       "version": "1.2.0"
     }
   ],
-  "releaseNotes": "1.1.0: Added temperature, battery current, last action, fuel used (30-day), outage status, service A/B due dates, and battery check due date. Fixed utility voltage key for Evolution controllers."
+  "releaseNotes": "1.2.0: Set switch to off and update statusSummary when Genmon is unreachable. 1.1.0: Added temperature, battery current, last action, fuel used (30-day), outage status, service A/B due dates, and battery check due date."
 }
