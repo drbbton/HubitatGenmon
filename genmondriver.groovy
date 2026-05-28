@@ -117,7 +117,8 @@ def fetchStatus() {
     } catch (e) {
         log.error "Could not reach Genmon at ${baseUrl()}: ${e.message}"
         evtIfChanged("generatorStatus", "Unreachable")
-        evtIfChanged("statusSummary", "Unreachable")
+        evtIfChanged("statusSummary", "Unreachable — check Genmon service")
+        evtIfChanged("switch", "off")
     }
 }
 
