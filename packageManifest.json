@@ -14,5 +14,5 @@
       "version": "1.1.0"
     }
   ],
-  "releaseNotes": "1.1.0: Added temperature, battery current, last action, fuel used (30-day), outage status, service A/B due dates, and battery check due date. Fixed utility voltage key for Evolution controllers (Line Utility Voltage).\n1.0.0: Initial release."
+  "releaseNotes": "1.1.0: Added temperature, battery current, last action, fuel used (30-day), outage status, service A/B due dates, and battery check due date. Fixed utility voltage key for Evolution controllers."
 }
