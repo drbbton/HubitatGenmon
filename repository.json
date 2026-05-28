@@ -1,0 +1,17 @@
+{
+  "author": "drbbton",
+  "gitHubUrl": "https://github.com/drbbton/HubitatGenmon",
+  "packages": [
+    {
+      "id": "3f7a1c82-d4e5-4b9f-a831-c2e07f5d9b14",
+      "name": "Hubitat Genmon Generator Monitor",
+      "category": "Control",
+      "location": "https://raw.githubusercontent.com/drbbton/HubitatGenmon/main/packageManifest.json",
+      "description": "Monitor a Generac (or other supported) generator running Genmon on a Raspberry Pi. Tracks engine state, output power, battery voltage, fuel level, run hours, utility voltage, transfer switch state, and more.",
+      "tags": [
+        "Energy Monitoring",
+        "Utility"
+      ]
+    }
+  ]
+}
