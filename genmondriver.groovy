@@ -9,6 +9,9 @@ preferences {
         defaultValue: false, description: "<em>Allows sending start, stop, and exercise commands to the generator. Disabled by default — use with caution.</em>"
     input name: "interval", type: "enum", title: "Polling Interval", required: true,
         options: ["1", "5", "10", "15", "30"], defaultValue: "5"
+    input name: "staleThresholdMinutes", type: "number", title: "Stale Contact Threshold (minutes)",
+        required: false, defaultValue: 30,
+        description: "<em>Mark as 'No Contact' if no successful Genmon response within this many minutes. Set to 0 to disable.</em>"
     input name: "debugEnable", type: "bool", title: "Enable debug logging?", defaultValue: true,
         description: "<em>Auto-disables after 2 hours.</em>"
 }
@@ -46,6 +49,7 @@ metadata {
         attribute "serviceBDue",        "string"
         attribute "batteryCheckDue",    "string"
         attribute "statusSummary",      "string"   // human-readable one-liner for dashboards
+        attribute "lastContactTime",    "string"   // Monitor Time from last successful Genmon response
 
         command "start"
         command "stop"
@@ -113,6 +117,7 @@ def fetchStatus() {
         httpGet(params) { resp ->
             if (debugEnable) log.debug "status_json raw: ${resp.data}"
             parseStatusJson(resp.data)
+            resetStaleTimer()
         }
     } catch (e) {
         log.error "Could not reach Genmon at ${baseUrl()}: ${e.message}"
@@ -154,7 +159,7 @@ private void parseStatusJson(data) {
     def engineState  = flat["Engine State"] ?: "Unknown"
     def swState      = flat["Switch State"] ?: "Unknown"
     def battV        = parseNumeric(flat["Battery Voltage"])
-    def battA        = parseNumericMilliamps(flat["Battery Current"])
+    def battA        = parseNumericMilliamps(flat["Battery Charger Current"] ?: flat["Battery Current"])
     def rpmVal       = parseNumeric(flat["RPM"])
     def freqVal      = parseNumeric(flat["Frequency"])
     def tempVal      = parseNumeric(flat["Temperature"])
@@ -191,6 +196,9 @@ private void parseStatusJson(data) {
     // Surface most recent alarm if present
     def alarm = flat["Last Alarm Log"] ?: ""
     if (alarm && alarm.trim() != "") evtIfChanged("lastAlarm", alarm.trim())
+
+    def monitorTime = flat["Monitor Time"]
+    if (monitorTime) evtIfChanged("lastContactTime", monitorTime.trim())
 }
 
 private void parseMaintenanceJson(data) {
@@ -262,6 +270,22 @@ private void evtIfChanged(String name, value) {
         sendEvent(name: name, value: value)
         if (debugEnable) log.debug "${name}: ${current} → ${value}"
     }
+}
+
+// ─── Stale contact detection ─────────────────────────────────────────────────
+
+private void resetStaleTimer() {
+    def threshold = staleThresholdMinutes?.toInteger() ?: 0
+    if (threshold > 0) {
+        runIn(threshold * 60, markStale)
+    }
+}
+
+def markStale() {
+    log.warn "No contact with Genmon in ${staleThresholdMinutes} minutes"
+    evtIfChanged("generatorStatus", "No Contact")
+    evtIfChanged("statusSummary", "No contact with Genmon in ${staleThresholdMinutes} min")
+    evtIfChanged("switch", "off")
 }
 
 // ─── Remote commands ─────────────────────────────────────────────────────────
